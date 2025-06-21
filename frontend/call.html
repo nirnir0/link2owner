@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>iPhone X Incoming Call UI</title>
+  <meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: #101010;
+      font-family: 'SF Pro Display', 'Segoe UI', Arial, sans-serif;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .iphone-x-frame {
+      width: 375px;
+      height: 812px;
+      border-radius: 60px;
+      overflow: hidden;
+      box-shadow: 0 10px 60px rgba(0,0,0,0.45);
+      background: #222;
+      position: relative;
+      border: 8px solid #222;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+    /* Status Bar */
+    .status-bar {
+      position: relative;
+      height: 44px;
+      width: 100%;
+      background: transparent;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 1rem;
+      padding: 0 18px;
+      z-index: 10;
+    }
+    .status-bar .left, .status-bar .right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-bar .center {
+      flex: 1;
+      text-align: center;
+      font-weight: 500;
+      letter-spacing: 1.2px;
+      font-size: 1.1rem;
+    }
+    /* Notch */
+    .notch {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+      width: 210px;
+      height: 32px;
+      background: #111;
+      border-bottom-left-radius: 24px 16px;
+      border-bottom-right-radius: 24px 16px;
+      z-index: 11;
+    }
+    /* Main Call UI */
+    .call-bg {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=375&q=80') center center/cover no-repeat;
+      filter: blur(12px) brightness(0.8);
+      z-index: 1;
+    }
+    .call-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 90px;
+      height: calc(100% - 90px);
+      /* So that absolute children are relative to this */
+    }
+    .avatar {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      background: #fff;
+      overflow: hidden;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .caller-name {
+      color: #fff;
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      text-shadow: 0 2px 8px #0008;
+    }
+    .caller-label {
+      color: #cfcfcf;
+      font-size: 1.1rem;
+      margin-bottom: 38px;
+      text-shadow: 0 2px 8px #0008;
+    }
+    /* Slide to answer */
+    .slide-bar,
+    .call-actions {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 40px;
+      margin: 0;
+      width: 240px;
+      z-index: 10;
+    }
+    .slide-bar {
+      height: 48px;
+      background: rgba(255,255,255,0.13);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      user-select: none;
+      cursor: pointer;
+    }
+    .slide-knob {
+      width: 48px;
+      height: 48px;
+      background: #34c759;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: #fff;
+      font-size: 1.7rem;
+      box-shadow: 0 2px 8px rgba(52,199,89,0.17);
+      transition: left 0.2s;
+      z-index: 2;
+    }
+    .slide-text {
+      flex: 1;
+      text-align: center;
+      color: #e5e5e5;
+      font-size: 1.08rem;
+      letter-spacing: 0.01em;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .slide-bar.answered {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    /* Call actions (after answer) */
+    .call-actions {
+      display: flex;
+      justify-content: center;
+      gap: 36px;
+      width: 240px;
+      /* bottom: 40px; already set above */
+      /* position: absolute; already set above */
+      /* left: 50%; transform: translateX(-50%); already set above */
+    }
+    .call-btn {
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      border: none;
+      font-size: 2.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      outline: none;
+      color: #fff;
+    }
+    .call-btn.end {
+      background: #ff3b30;
+    }
+    .call-btn:active {
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      transform: scale(0.97);
+    }
+    .call-status {
+      text-align: center;
+      color: #bbb;
+      font-size: 1.1rem;
+      margin-top: 18px;
+      min-height: 24px;
+      text-shadow: 0 2px 8px #0008;
+    }
+    /* Home indicator */
+    .home-indicator {
+      position: absolute;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      width: 135px;
+      height: 5px;
+      background: #222;
+      border-radius: 3px;
+      opacity: 0.8;
+      z-index: 20;
+    }
+    /* Safe area padding for bottom */
+    .safe-bottom {
+      height: 40px;
+      width: 100%;
+      background: transparent;
+    }
+    /* Battery and signal icons (SVG) */
+    .icon-battery {
+      width: 26px; height: 12px; display: inline-block; vertical-align: middle;
+    }
+    .icon-signal {
+      width: 18px; height: 14px; display: inline-block; vertical-align: middle;
+    }
+    .icon-wifi {
+      width: 18px; height: 14px; display: inline-block; vertical-align: middle;
+    }
+    /* Responsive: shrink for mobile */
+    @media (max-width: 400px) {
+      .iphone-x-frame { width: 100vw; height: 100vh; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-x-frame">
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="left">
+        <span id="statusTime">9:41</span>
+      </div>
+      <div class="center"></div>
+      <div class="right">
+        <!-- Signal SVG -->
+        <span class="icon-signal">
+          <svg viewBox="0 0 18 14" width="18" height="14">
+            <rect x="0" y="10" width="2" height="4" fill="#fff" opacity="0.5"/>
+            <rect x="4" y="8" width="2" height="6" fill="#fff" opacity="0.7"/>
+            <rect x="8" y="6" width="2" height="8" fill="#fff" opacity="0.8"/>
+            <rect x="12" y="4" width="2" height="10" fill="#fff" opacity="0.9"/>
+            <rect x="16" y="2" width="2" height="12" fill="#fff"/>
+          </svg>
+        </span>
+        <!-- WiFi SVG -->
+        <span class="icon-wifi">
+          <svg viewBox="0 0 18 14" width="18" height="14">
+            <path d="M9 12a2 2 0 0 0-2 2h4a2 2 0 0 0-2-2zm-5-2a8 8 0 0 1 10 0" stroke="#fff" stroke-width="1.5" fill="none" opacity="0.7"/>
+            <path d="M3 8a12 12 0 0 1 12 0" stroke="#fff" stroke-width="1.5" fill="none" opacity="0.6"/>
+            <path d="M1 5a16 16 0 0 1 16 0" stroke="#fff" stroke-width="1.5" fill="none" opacity="0.5"/>
+          </svg>
+        </span>
+        <!-- Battery SVG -->
+        <span class="icon-battery">
+          <svg viewBox="0 0 26 12" width="26" height="12">
+            <rect x="0.5" y="2" width="22" height="8" rx="2" fill="none" stroke="#fff" stroke-width="1.5"/>
+            <rect x="2" y="4" width="18" height="4" rx="1" fill="#fff"/>
+            <rect x="23" y="4.5" width="2" height="3" rx="0.5" fill="#fff"/>
+          </svg>
+        </span>
+      </div>
+      <div class="notch"></div>
+    </div>
+    <!-- Blurred Background -->
+    <div class="call-bg"></div>
+    <!-- Main Call Content -->
+    <div class="call-content">
+      <div class="avatar">
+        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Caller">
+      </div>
+      <div class="caller-name">Link2Owner Agent</div>
+      <div class="caller-label">Mobile</div>
+      <!-- Slide to answer bar -->
+      <div class="slide-bar" id="slideBar">
+        <div class="slide-knob" id="slideKnob"><span class="material-icons">call</span></div>
+        <div class="slide-text">Slide to answer</div>
+      </div>
+      <!-- Call actions (after answer) -->
+      <div class="call-actions" id="callActions" style="display:none;">
+        <button class="call-btn end" id="endCallBtn"><span class="material-icons">call_end</span></button>
+      </div>
+      <div class="call-status" id="callStatus"></div>
+    </div>
+    <div class="safe-bottom"></div>
+    <div class="home-indicator"></div>
+    <audio id="ringtone" src="d.mp3" loop></audio>
+  </div>
+  <script>
+    // Set time to current time, iPhone style
+    function pad(n) { return n < 10 ? '0'+n : n; }
+    function updateTime() {
+      const d = new Date();
+      let h = d.getHours(), m = d.getMinutes();
+      document.getElementById('statusTime').textContent = `${h}:${pad(m)}`;
+    }
+    updateTime();
+    setInterval(updateTime, 10000);
+
+    // Play ringtone on load
+    const ringtone = document.getElementById('ringtone');
+    ringtone.volume = 0.5;
+    ringtone.play();
+
+    // Slide to answer logic
+    const slideBar = document.getElementById('slideBar');
+    const slideKnob = document.getElementById('slideKnob');
+    const callActions = document.getElementById('callActions');
+    const callStatus = document.getElementById('callStatus');
+    let isAnswered = false, isDragging = false, startX = 0, currentX = 0;
+    const maxSlide = 192; // slideBar width (240) - knob width (48)
+
+    slideKnob.addEventListener('mousedown', e => {
+      isDragging = true;
+      startX = e.clientX - slideKnob.offsetLeft;
+      document.body.style.userSelect = 'none';
+    });
+    document.addEventListener('mousemove', e => {
+      if (isDragging && !isAnswered) {
+        currentX = Math.min(Math.max(0, e.clientX - startX), maxSlide);
+        slideKnob.style.left = currentX + 'px';
+        if (currentX >= maxSlide - 5) {
+          answerCall();
+        }
+      }
+    });
+    document.addEventListener('mouseup', () => {
+      if (isDragging && !isAnswered) {
+        slideKnob.style.left = '0px';
+      }
+      isDragging = false;
+      document.body.style.userSelect = '';
+    });
+
+    // Touch support
+    slideKnob.addEventListener('touchstart', e => {
+      isDragging = true;
+      startX = e.touches[0].clientX - slideKnob.offsetLeft;
+    });
+    document.addEventListener('touchmove', e => {
+      if (isDragging && !isAnswered) {
+        currentX = Math.min(Math.max(0, e.touches[0].clientX - startX), maxSlide);
+        slideKnob.style.left = currentX + 'px';
+        if (currentX >= maxSlide - 5) {
+          answerCall();
+        }
+      }
+    });
+    document.addEventListener('touchend', () => {
+      if (isDragging && !isAnswered) {
+        slideKnob.style.left = '0px';
+      }
+      isDragging = false;
+    });
+
+    function answerCall() {
+      isAnswered = true;
+      slideBar.classList.add('answered');
+      slideKnob.style.left = maxSlide + 'px';
+      setTimeout(() => {
+        slideBar.style.display = 'none';
+        callActions.style.display = 'flex';
+        callStatus.textContent = "Call in progress...";
+      }, 300);
+      ringtone.pause();
+      ringtone.currentTime = 0;
+    }
+
+    // End call button
+    document.getElementById('endCallBtn').onclick = () => {
+      callStatus.textContent = "Call ended";
+      callActions.style.display = 'none';
+      document.querySelector('.call-content').style.opacity = 0.5;
+    };
+  </script>
+</body>
+</html>
